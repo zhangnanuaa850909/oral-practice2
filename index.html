@@ -71,6 +71,38 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
 
+    .week-selector {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .week-btn {
+      flex: 1;
+      max-width: 220px;
+      padding: 12px 18px;
+      border: 3px solid #d8edff;
+      background: #f7fcff;
+      color: #24506b;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: all 0.3s;
+    }
+
+    .week-btn:hover {
+      border-color: #33d8ff;
+      transform: translateY(-2px);
+    }
+
+    .week-btn.active {
+      background: linear-gradient(180deg, #33d8ff, #2b8cff);
+      color: white;
+      border-color: #2b8cff;
+      box-shadow: 0 5px 0 rgba(43, 140, 255, 0.25);
+    }
+
     .days {
       display: flex;
       gap: 12px;
@@ -1229,8 +1261,12 @@
       </div>
     </div>
 
-    <!-- 日期选择 -->
+    <!-- 周次和日期选择 -->
     <div class="day-selector">
+      <div class="week-selector" aria-label="选择课程周次">
+        <button class="week-btn active" data-week="1">第一周</button>
+        <button class="week-btn" data-week="2">第二周</button>
+      </div>
       <div class="days">
         <button class="day-btn" data-day="1">周一</button>
         <button class="day-btn" data-day="2">周二</button>
@@ -1554,17 +1590,216 @@
       }
     };
 
+    const WEEK_LESSONS = {
+      1: LESSONS,
+      2: {
+        1: {
+          day: '周一',
+          title: '谈论运动',
+          passage: 'A: Hi, Daming. Can you run fast? B: Yes, I can. I’m going to have a sports day this week. A: Great! What are you going to do? B: I’m going to run the 100 metres.',
+          sentences: [
+            'A: Hi, Daming. Can you run fast?',
+            'B: Yes, I can. I’m going to have a sports day this week.',
+            'A: Great! What are you going to do?',
+            'B: I’m going to run the 100 metres.'
+          ],
+          translations: [
+            'A：你好，大明。你能跑得快吗？',
+            'B：是的，我能。我这周要参加运动会。',
+            'A：太好了！你打算做什么？',
+            'B：我打算跑一百米。'
+          ],
+          questions: [
+            {
+              type: 'choice',
+              text: 'Can Daming run fast?',
+              options: [
+                { value: 'A', label: 'A. Yes, he can.' },
+                { value: 'B', label: 'B. No, he can’t.' }
+              ],
+              answer: 'A',
+              explanation: '短文中 Daming 说 “Yes, I can.”，所以他能跑得快。'
+            },
+            {
+              type: 'choice',
+              text: 'What is Daming going to do on sports day?',
+              options: [
+                { value: 'A', label: 'A. Jump high.' },
+                { value: 'B', label: 'B. Run the 100 metres.' }
+              ],
+              answer: 'B',
+              explanation: 'Daming 说 “I’m going to run the 100 metres.”，所以他要跑一百米。'
+            }
+          ]
+        },
+        2: {
+          day: '周二',
+          title: '周末计划',
+          passage: 'A: Hello, Amy. Where are you going this Saturday? B: I’m going to the zoo with my mum. A: What are you going to see? B: We are going to see pandas. They love bamboo.',
+          sentences: [
+            'A: Hello, Amy. Where are you going this Saturday?',
+            'B: I’m going to the zoo with my mum.',
+            'A: What are you going to see?',
+            'B: We are going to see pandas. They love bamboo.'
+          ],
+          translations: [
+            'A：你好，艾米。这周六你要去哪里？',
+            'B：我要和妈妈一起去动物园。',
+            'A：你们要去看什么？',
+            'B：我们要去看熊猫。它们喜欢竹子。'
+          ],
+          questions: [
+            {
+              type: 'tf',
+              text: 'Amy is going to the zoo on Saturday.',
+              answer: true,
+              explanation: '艾米说 “I’m going to the zoo with my mum.”，并且前面提到 Saturday，所以判断为正确。'
+            },
+            {
+              type: 'tf',
+              text: 'Amy will see tigers.',
+              answer: false,
+              explanation: '短文中说他们要看 pandas（熊猫），没有说 tigers（老虎），所以判断为错误。'
+            }
+          ]
+        },
+        3: {
+          day: '周三',
+          title: '生日派对',
+          passage: 'A: Lingling, what are you going to do for your birthday? B: I’m going to have a party at my home. A: Who will come? B: My friends. We will eat a big cake.',
+          sentences: [
+            'A: Lingling, what are you going to do for your birthday?',
+            'B: I’m going to have a party at my home.',
+            'A: Who will come?',
+            'B: My friends. We will eat a big cake.'
+          ],
+          translations: [
+            'A：玲玲，你打算怎样过生日？',
+            'B：我打算在家里举办一个派对。',
+            'A：谁会来？',
+            'B：我的朋友们。我们要吃一个大蛋糕。'
+          ],
+          questions: [
+            {
+              type: 'choice',
+              text: 'Where will Lingling have her birthday party?',
+              options: [
+                { value: 'A', label: 'A. At home.' },
+                { value: 'B', label: 'B. At the park.' }
+              ],
+              answer: 'A',
+              explanation: '玲玲说 “I’m going to have a party at my home.”，所以派对在家里举行。'
+            },
+            {
+              type: 'choice',
+              text: 'What will they eat?',
+              options: [
+                { value: 'A', label: 'A. Noodles.' },
+                { value: 'B', label: 'B. A big cake.' }
+              ],
+              answer: 'B',
+              explanation: '短文最后说 “We will eat a big cake.”，所以他们要吃大蛋糕。'
+            }
+          ]
+        },
+        4: {
+          day: '周四',
+          title: '谈论能力',
+          passage: 'A: Sam, can you swim? B: No, I can’t. But I can play basketball well. A: Can I play with you? B: Of course!',
+          sentences: [
+            'A: Sam, can you swim?',
+            'B: No, I can’t. But I can play basketball well.',
+            'A: Can I play with you?',
+            'B: Of course!'
+          ],
+          translations: [
+            'A：萨姆，你会游泳吗？',
+            'B：不，我不会。但是我篮球打得很好。',
+            'A：我可以和你一起玩吗？',
+            'B：当然可以！'
+          ],
+          questions: [
+            {
+              type: 'tf',
+              text: 'Sam can swim.',
+              answer: false,
+              explanation: 'Sam 说 “No, I can’t.”，所以他不会游泳。'
+            },
+            {
+              type: 'tf',
+              text: 'Sam is good at basketball.',
+              answer: true,
+              explanation: 'Sam 说 “I can play basketball well.”，说明他的篮球打得很好。'
+            }
+          ]
+        },
+        5: {
+          day: '周五',
+          title: '去超市',
+          passage: 'A: Mum, what are we going to buy in the supermarket? B: We are going to buy some fruit and vegetables. A: Can we buy some apples? B: OK.',
+          sentences: [
+            'A: Mum, what are we going to buy in the supermarket?',
+            'B: We are going to buy some fruit and vegetables.',
+            'A: Can we buy some apples?',
+            'B: OK.'
+          ],
+          translations: [
+            'A：妈妈，我们要去超市买什么？',
+            'B：我们要买一些水果和蔬菜。',
+            'A：我们可以买一些苹果吗？',
+            'B：好的。'
+          ],
+          questions: [
+            {
+              type: 'choice',
+              text: 'Where will they go?',
+              options: [
+                { value: 'A', label: 'A. Supermarket.' },
+                { value: 'B', label: 'B. Zoo.' }
+              ],
+              answer: 'A',
+              explanation: '对话中提到 “in the supermarket”，所以他们要去超市。'
+            },
+            {
+              type: 'choice',
+              text: 'What fruit does the kid want?',
+              options: [
+                { value: 'A', label: 'A. Bananas.' },
+                { value: 'B', label: 'B. Apples.' }
+              ],
+              answer: 'B',
+              explanation: '孩子问 “Can we buy some apples?”，所以他想要苹果。'
+            }
+          ]
+        }
+      }
+    };
+
+    function normalizeProgress(raw) {
+      const progress = raw && typeof raw === 'object' ? { ...raw } : {};
+      for (let day = 1; day <= 5; day++) {
+        const legacyKey = String(day);
+        const weekOneKey = `1-${day}`;
+        if (Object.prototype.hasOwnProperty.call(progress, legacyKey) && !Object.prototype.hasOwnProperty.call(progress, weekOneKey)) {
+          progress[weekOneKey] = progress[legacyKey];
+        }
+        delete progress[legacyKey];
+      }
+      return progress;
+    }
+
     // ========== 状态管理 ==========
     let state = {
+      currentWeek: 1,
       currentDay: 1,
       currentStep: 1,
       playCount: 0,
       quizAnswers: {},
       sentenceScores: [],
       manualCompletions: [],
-      completed: JSON.parse(localStorage.getItem('completed') || '{}'),
+      completed: normalizeProgress(JSON.parse(localStorage.getItem('completed') || '{}')),
       streak: parseInt(localStorage.getItem('streak') || '0'),
-      scores: JSON.parse(localStorage.getItem('scores') || '{}'),
+      scores: normalizeProgress(JSON.parse(localStorage.getItem('scores') || '{}')),
       recognition: null,
       mediaRecorder: null,
       recordingStream: null,
@@ -1722,7 +1957,7 @@
         summary.classList.remove('show');
       }
       if (score) {
-        score.textContent = '-';
+        score.textContent = '本句得分：-';
         score.classList.remove('good', 'bad');
       }
       state.sentenceScores[index] = null;
@@ -1794,14 +2029,34 @@
     }
 
     // ========== 初始化 ==========
+    function getCurrentLesson() {
+      return WEEK_LESSONS[state.currentWeek][state.currentDay];
+    }
+
+    function getProgressKey(week = state.currentWeek, day = state.currentDay) {
+      return `${week}-${day}`;
+    }
+
     function init() {
       updateStats();
+      renderWeekButtons();
       renderDayButtons();
       loadLesson(1);
       attachEventListeners();
     }
 
     function attachEventListeners() {
+      document.querySelectorAll('.week-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const week = parseInt(btn.dataset.week);
+          state.currentWeek = week;
+          state.currentDay = 1;
+          renderWeekButtons();
+          renderDayButtons();
+          loadLesson(1);
+        });
+      });
+
       document.querySelectorAll('.day-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const day = parseInt(btn.dataset.day);
@@ -1817,6 +2072,12 @@
       document.getElementById('finishBtn').addEventListener('click', () => goToStep(3));
       document.getElementById('nextDayBtn').addEventListener('click', handleNextDay);
       document.getElementById('practiceAgainBtn').addEventListener('click', () => loadLesson(state.currentDay));
+    }
+
+    function renderWeekButtons() {
+      document.querySelectorAll('.week-btn').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.week) === state.currentWeek);
+      });
     }
 
     function loadLesson(day) {
@@ -1836,7 +2097,8 @@
       });
 
       goToStep(1);
-      updateMascot(`${LESSONS[day].day}打卡开始！先认真听短文，小耳朵准备好。`, 0, '🤖');
+      const lesson = getCurrentLesson();
+      updateMascot(`${lesson.title ? `${lesson.title}，` : ''}${lesson.day}打卡开始！先认真听短文，小耳朵准备好。`, 0, '🤖');
       document.getElementById('startListenBtn').disabled = false;
       document.getElementById('startListenBtn').textContent = '▶️ 开始播放短文';
       document.getElementById('submitQuizBtn').disabled = false;
@@ -1871,7 +2133,7 @@
 
     // ========== 第1步：听力+做题 ==========
     function handleStartListen() {
-      const lesson = LESSONS[state.currentDay];
+      const lesson = getCurrentLesson();
       const btn = document.getElementById('startListenBtn');
       const passageHint = document.getElementById('passageHint');
       btn.disabled = true;
@@ -1899,30 +2161,44 @@
     }
 
     function renderQuiz() {
-      const lesson = LESSONS[state.currentDay];
+      const lesson = getCurrentLesson();
       const container = document.getElementById('questionsContainer');
-      
-      container.innerHTML = lesson.questions.map((q, i) => `
-        <div class="question" data-q="${i}">
-          <div class="question-text">
-            <span class="question-number">${i + 1}</span>${q.text}
+
+      container.innerHTML = lesson.questions.map((q, i) => {
+        const options = q.type === 'choice'
+          ? q.options
+          : [
+              { value: true, label: 'T (正确)' },
+              { value: false, label: 'F (错误)' }
+            ];
+
+        return `
+          <div class="question" data-q="${i}">
+            <div class="question-text">
+              <span class="question-number">${i + 1}</span>${q.text}
+            </div>
+            <div class="options">
+              ${options.map(option => `
+                <button class="option-btn" data-q="${i}" data-answer="${String(option.value)}">${option.label}</button>
+              `).join('')}
+            </div>
+            <div class="explanation" id="exp-${i}">
+              <div class="explanation-text"></div>
+            </div>
           </div>
-          <div class="options">
-            <button class="option-btn" data-q="${i}" data-answer="true">T (正确)</button>
-            <button class="option-btn" data-q="${i}" data-answer="false">F (错误)</button>
-          </div>
-          <div class="explanation" id="exp-${i}">
-            <div class="explanation-text"></div>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
 
       document.querySelectorAll('.option-btn').forEach(btn => {
         btn.addEventListener('click', function() {
           const q = this.dataset.q;
           document.querySelectorAll(`[data-q="${q}"]`).forEach(b => b.classList.remove('selected'));
           this.classList.add('selected');
-          state.quizAnswers[q] = this.dataset.answer === 'true';
+          state.quizAnswers[q] = this.dataset.answer === 'true'
+            ? true
+            : this.dataset.answer === 'false'
+              ? false
+              : this.dataset.answer;
         });
       });
 
@@ -1930,7 +2206,7 @@
     }
 
     function handleSubmitQuiz() {
-      const lesson = LESSONS[state.currentDay];
+      const lesson = getCurrentLesson();
       if (Object.keys(state.quizAnswers).length < lesson.questions.length) {
         alert('请完成所有题目！');
         return;
@@ -1943,7 +2219,11 @@
         const expDiv = document.getElementById(`exp-${i}`);
         
         btns.forEach(btn => {
-          const btnAnswer = btn.dataset.answer === 'true';
+          const btnAnswer = btn.dataset.answer === 'true'
+            ? true
+            : btn.dataset.answer === 'false'
+              ? false
+              : btn.dataset.answer;
           if (btnAnswer === q.answer) {
             btn.classList.add('correct');
           }
@@ -1978,7 +2258,7 @@
 
     // ========== 第2步：跟读练习 ==========
     function renderSentencePractice() {
-      const lesson = LESSONS[state.currentDay];
+      const lesson = getCurrentLesson();
       const container = document.getElementById('sentenceContainer');
       
       state.sentenceScores = new Array(lesson.sentences.length).fill(null);
@@ -1994,7 +2274,7 @@
               <div class="word-feedback" id="wordFeedback-${i}" aria-live="polite"></div>
               <div class="recognition-summary" id="recognitionSummary-${i}"></div>
             </div>
-            <div class="sentence-score" id="score-${i}">-</div>
+            <div class="sentence-score" id="score-${i}">本句得分：-</div>
           </div>
           <div class="shadow-actions">
             <button class="demo-btn" data-index="${i}">🔊 听示范</button>
@@ -2037,7 +2317,7 @@
     }
 
     function handlePlaySentence(index, btn) {
-      const lesson = LESSONS[state.currentDay];
+      const lesson = getCurrentLesson();
       const targetText = lesson.sentences[index];
       btn.disabled = true;
       btn.textContent = '🔊 播放中';
@@ -2052,6 +2332,12 @@
 
     function markSentencePracticed(index) {
       if (state.sentenceScores[index] !== null) {
+        if (state.sentenceScores[index] < 85) {
+          state.manualCompletions[index] = false;
+          showRecognitionSummary(index, '本句低于85分，请重新读这一句，达到85分后才算掌握。');
+          updateMascot(`第${index + 1}句低于85分，请重新读这一句。`, 1, '🐥');
+          return;
+        }
         state.manualCompletions[index] = true;
         updateMascot(`第${index + 1}句已经有自动评分啦！`, 2, '🌟');
         return;
@@ -2082,7 +2368,7 @@
       state.sentenceScores[index] = score;
       const scoreEl = document.getElementById(`score-${index}`);
       if (!scoreEl) return;
-      scoreEl.textContent = `${score}分`;
+      scoreEl.textContent = `本句得分：${score}分`;
       scoreEl.classList.remove('good', 'bad');
       scoreEl.classList.add(score >= 85 ? 'good' : 'bad');
     }
@@ -2244,7 +2530,7 @@
         return;
       }
 
-      const lesson = LESSONS[state.currentDay];
+      const lesson = getCurrentLesson();
       const targetText = lesson.sentences[index];
       clearSentenceFeedback(index);
       btn.disabled = true;
@@ -2263,10 +2549,16 @@
           hasResult = true;
           handled = true;
           const comparison = compareWords(targetText, transcript);
+          const passed = comparison.score >= 85;
           setSentenceScore(index, comparison.score);
-          state.manualCompletions[index] = true;
+          state.manualCompletions[index] = passed;
           renderWordFeedback(index, comparison);
-          showRecognitionSummary(index, `识别到：${comparison.spoken}`);
+          showRecognitionSummary(
+            index,
+            passed
+              ? `识别到：${comparison.spoken}`
+              : `识别到：${comparison.spoken}。本句低于85分，请重新读这一句。`
+          );
           const manualBtn = document.getElementById(`manualScoreBtn-${index}`);
           if (manualBtn) manualBtn.classList.add('hidden');
           const confirmBtn = document.getElementById(`confirmRecordingBtn-${index}`);
@@ -2294,6 +2586,7 @@
       const allPracticed = state.sentenceScores.every((score, index) => score !== null || state.manualCompletions[index]);
       const validScores = state.sentenceScores.filter(s => s !== null);
       const allAutoScored = validScores.length === state.sentenceScores.length;
+      const hasFailedScore = validScores.some(score => score < 85);
       
       if (!allPracticed) {
         alert('请完成所有句子的跟读！如果麦克风或识别不可用，可点击“我已读完，点这里记录”。');
@@ -2302,6 +2595,18 @@
 
       document.getElementById('overallScoreDisplay').style.display = 'block';
 
+      if (hasFailedScore) {
+        document.getElementById('overallScoreValue').textContent = allAutoScored
+          ? `${Math.round(validScores.reduce((a, b) => a + b, 0) / validScores.length)}分`
+          : '未自动评分';
+        document.getElementById('retryWarning').classList.remove('hidden');
+        document.getElementById('retryBtn').classList.remove('hidden');
+        document.getElementById('finishBtn').classList.add('hidden');
+        updateMascot('有句子低于85分，请重新读低于85分的句子，达到85分后再完成学习。', 1, '🐣');
+        document.getElementById('checkScoreBtn').classList.add('hidden');
+        return;
+      }
+
       if (!allAutoScored) {
         document.getElementById('overallScoreValue').textContent = '未自动评分';
         updateMascot('已完成全部跟读！部分句子未能自动评分，所以不显示平均分，也不会冒充85分。', 2, '🌟');
@@ -2309,7 +2614,7 @@
         document.getElementById('retryWarning').classList.add('hidden');
         document.getElementById('retryBtn').classList.remove('hidden');
         document.getElementById('finishBtn').classList.remove('hidden');
-        state.completed[state.currentDay] = true;
+        state.completed[getProgressKey()] = true;
         localStorage.setItem('completed', JSON.stringify(state.completed));
         updateStreak();
         updateStats();
@@ -2335,8 +2640,8 @@
         document.getElementById('finishBtn').classList.remove('hidden');
         
         // 保存成绩
-        state.scores[state.currentDay] = avgScore;
-        state.completed[state.currentDay] = true;
+        state.scores[getProgressKey()] = avgScore;
+        state.completed[getProgressKey()] = true;
         localStorage.setItem('scores', JSON.stringify(state.scores));
         localStorage.setItem('completed', JSON.stringify(state.completed));
         updateStreak();
@@ -2356,20 +2661,27 @@
     function handleNextDay() {
       if (state.currentDay < 5) {
         loadLesson(state.currentDay + 1);
+      } else if (state.currentWeek < Object.keys(WEEK_LESSONS).length) {
+        state.currentWeek += 1;
+        state.currentDay = 1;
+        renderWeekButtons();
+        renderDayButtons();
+        loadLesson(1);
       } else {
-        alert('本周课程全部完成！🎉');
+        alert('两周课程全部完成！🎉');
       }
     }
 
     // ========== 统计更新 ==========
     function updateStats() {
       document.getElementById('streak').textContent = state.streak;
-      
-      const completed = Object.keys(state.completed).length;
-      document.getElementById('weekProgress').textContent = `${completed}/5`;
-      
+
+      const weekCompleted = Object.keys(state.completed)
+        .filter(key => key.startsWith(`${state.currentWeek}-`)).length;
+      document.getElementById('weekProgress').textContent = `${weekCompleted}/5`;
+
       const scores = Object.values(state.scores);
-      const avg = scores.length > 0 
+      const avg = scores.length > 0
         ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
         : 0;
       document.getElementById('avgScore').textContent = `${avg}%`;
@@ -2399,12 +2711,10 @@
     function renderDayButtons() {
       document.querySelectorAll('.day-btn').forEach(btn => {
         const day = parseInt(btn.dataset.day);
-        if (state.completed[day]) {
-          btn.classList.add('completed');
-        } else {
-          btn.classList.remove('completed');
-        }
+        btn.classList.toggle('active', day === state.currentDay);
+        btn.classList.toggle('completed', Boolean(state.completed[getProgressKey(state.currentWeek, day)]));
       });
+      updateStats();
     }
 
     // ========== 启动 ==========
@@ -2425,3 +2735,4 @@
   </script>
 </body>
 </html>
+
